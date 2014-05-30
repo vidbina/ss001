@@ -9,13 +9,17 @@ plot(res$Time, res$OutB, col="red");
 
 countSteps <- function(s, thresh = 1)
 {
-  if(length(s) > 1) {
-    step <- ifelse(s[2] - s[1] >= thresh, 1, 0);
-    return(step + countSteps(s[2:length(s)]));
-  } else {
-    return(0);
+  prevS <- s[1];
+  N <- 0;
+
+  for(currentS in s)
+  {
+    N <- N + ifelse(currentS - prevS >= thresh, 1, 0);
+    prevS <- currentS;
   }
+  return(N);
 }
+
 countMeasurements <- function(steps)
 {
   prev <- 0;
