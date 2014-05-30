@@ -7,29 +7,20 @@ par(mar=c(1,2,1,1));
 plot(res$Time, res$OutA, col="blue", type="p");
 plot(res$Time, res$OutB, col="red");
 
-countSteps <- function(s, thresh = 1)
-{
-  prevS <- s[1];
-  N <- 0;
+#' Count level changes within a series
+#
+#' @param s numberic vector to be counted
+#' @param thresh size of the delta required to constitute a change
+#' @param rising count rising edges
+#' @param falling count falling edges
+countSteps <- function(s, thresh = 1, rising=T, falling=T) {
+  prevS <- s[1]
+  N <- 0
 
-  for(currentS in s)
-  {
-    N <- N + ifelse(currentS - prevS >= thresh, 1, 0);
-    prevS <- currentS;
+  for(currentS in s) {
+    isStep <- ifelse(rising, (currentS - prevS) >= thresh, F) || ifelse(falling, (prevS - currentS) >= thresh, F)
+    N <- N + ifelse(isStep, 1, 0)
+    prevS <- currentS
   }
-  return(N);
-}
-
-countMeasurements <- function(steps)
-{
-  prev <- 0;
-  count <- 0;
-  for(i in steps)
-  {
-    if(prev == 0 && i == 1) 
-    {
-      count <- count+1;
-    }
-    prev <- i;
-  }
+  return(N)
 }
