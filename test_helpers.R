@@ -116,12 +116,12 @@ test_that("returns all datapoints within the step", {
   data <- c(900, 898, 902, 901, 897, 900, 500, 502, 501, 499)
   pulse <- c(1, 1, 1, 1, 1, 1, 0, 0, 0, 0)
 
-  expect_that(getStepDataFromSample(data, clock=pulse, sample=1), equals(c(900, 898, 902, 901, 897, 900)))
-  expect_that(getStepDataFromSample(data, clock=pulse, sample=7), equals(c(500, 502, 501, 499)))
+  expect_that(getStepData(data, clock=pulse, startAt=1), equals(c(900, 898, 902, 901, 897, 900)))
+  expect_that(getStepData(data, clock=pulse, startAt=7), equals(c(500, 502, 501, 499)))
 
   data <- c(10, 11, 12, 45, 46, 43, 20, 20, 19, 15, 14, 15)
   pulse <- c(1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0)
 
-  expect_that(getStepDataFromSample(data, clock=pulse, sample=getStepIndex(pulse, N=1)), equals(c(45, 46, 43)))
-  expect_that(getStepDataFromSample(data, clock=pulse, sample=getStepIndex(pulse, N=3)), equals(c(15, 14, 15)))
+  expect_that(getStepData(data, clock=pulse, startAt=getStepIndex(pulse, N=1)), equals(c(45, 46, 43)))
+  expect_that(getStepData(data, clock=pulse, startAt=getStepIndex(pulse, N=3)), equals(c(15, 14, 15)))
 })

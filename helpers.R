@@ -53,8 +53,8 @@ getStepIndex <- function(s, startAt=1, thresh=1, rising=T, falling=T, N=1) {
   return(0)
 }
 
-getStepDataFromSample <- function(d, clock, sample=1) {
+getStepData <- function(d, clock, startAt=1) {
   if(length(d) != length(clock)) return(c)
-  nextStep <- getStepIndex(clock, startAt=sample)
-  return(d[sample:(ifelse((nextStep > 0), nextStep-1, length(clock)))])
+  nextStep <- getStepIndex(clock, startAt=startAt)
+  return(d[startAt:(ifelse((nextStep > 0), nextStep-1, length(clock)))])
 }
