@@ -83,6 +83,15 @@ test_that("picks up the first step in a series of samples", {
   expect_that(getStepIndex(c(1,0,1,1,1)), equals(2))
 })
 
+test_that("picks up the Nth step in a series of samples", {
+  expect_that(getStepIndex(c(0,1,1,1,0), N=2), equals(5))
+  expect_that(getStepIndex(c(0,0,0,1,1), N=2), equals(0))
+  expect_that(getStepIndex(c(0,0,0,0,0), N=2), equals(0))
+  expect_that(getStepIndex(c(1,1,1,1,1), N=2), equals(0))
+  expect_that(getStepIndex(c(1,1,0,0,0), N=2), equals(0))
+  expect_that(getStepIndex(c(1,0,1,1,1), N=2), equals(3))
+})
+
 test_that("picks up the first step from a defined point in the sample set", {
   expect_that(getStepIndex(c(0,1,1,1,0), startAt=2), equals(5))
   expect_that(getStepIndex(c(0,0,0,1,1), startAt=2), equals(4))
@@ -99,4 +108,20 @@ test_that("returns zero if startAt index out of bounds", {
   expect_that(getStepIndex(c(1,1,1,1,1), startAt=5), equals(0))
   expect_that(getStepIndex(c(1,1,1,0,0), startAt=5), equals(0))
   expect_that(getStepIndex(c(1,0,1,1,1), startAt=5), equals(0))
+})
+
+context("Extractor")
+
+test_that("returns all datapoints within the step", {
+  data <- c(900, 898, 902, 901, 897, 900, 500, 502, 501, 499)
+  pulse <- c(1, 1, 1, 1, 1, 1, 0, 0, 0, 0)
+
+  expect_that(getStepDataFromSample(data, clock=pulse, sample=1), equals(c(900, 898, 902, 901, 897, 900)))
+  expect_that(getStepDataFromSample(data, clock=pulse, sample=7), equals(c(500, 502, 501, 499)))
+
+  data <- c(10, 11, 12, 45, 46, 43, 20, 20, 19, 15, 14, 15)
+  pulse <- c(1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0)
+
+  expect_that(getStepDataFromSample(data, clock=pulse, sample=getStepIndex(pulse, N=1)), equals(c(45, 46, 43)))
+  expect_that(getStepDataFromSample(data, clock=pulse, sample=getStepIndex(pulse, N=3)), equals(c(15, 14, 15)))
 })

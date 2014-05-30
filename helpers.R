@@ -17,7 +17,7 @@ isStep <- function(s, thresh=1, rising=T, falling=T) {
 
 #' Count level changes within a series
 #
-#' @param s numberic vector to be counted
+#' @param s numeric vector containing the clock/pulse samples
 #' @param thresh size of the delta required to constitute a change
 #' @param rising count rising edges
 #' @param falling count falling edges
@@ -33,15 +33,28 @@ countSteps <- function(s, thresh=1, rising=T, falling=T) {
 }
 
 
-#' Returns the index of the first post-edge sample 
+#' Returns the index of the N-th post-edge sample 
 #
 #' Upon specifying a invalid startingpoint startAt zero is returned
-getStepIndex <- function(s, startAt=1, thresh=1, rising=T, falling=T) {
+#' Setting N to 2 will return the index of the second step change
+
+# @param N step count
+getStepIndex <- function(s, startAt=1, thresh=1, rising=T, falling=T, N=1) {
+  at <- 0;
   if((startAt < 1) || (startAt > (length(s)-1))) return(0)
   if(length(s) > 1) {
     for(i in (startAt+1):length(s)) {
-      if(isStep(c(s[i-1], s[i]))) { return(i) }
+      if(isStep(c(s[i-1], s[i]))) { 
+        at <- at+1
+        if(at == N) return(i) 
+      }
     }
   }
   return(0)
+}
+
+getStepDataFromSample <- function(d, clock, sample=1) {
+  if(length(d) != length(clock)) return(c)
+  nextStep <- getStepIndex(clock, startAt=sample)
+  return(d[sample:(ifelse((nextStep > 0), nextStep-1, length(clock)))])
 }
