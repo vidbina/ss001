@@ -53,13 +53,18 @@ getStepIndex <- function(s, startAt=1, thresh=1, rising=T, falling=T, N=1) {
   return(0)
 }
 
-getStepIndices <- function(s, startAt=1, thresh=1, rising=T, falling=T) {
+getStepIndices <- function(s, startAt=1, endAt=length(s), thresh=1, rising=T, falling=T) {
   arr <- c();
   idx <- startAt;
 
   repeat {
     idx <- getStepIndex(s, startAt=idx, thresh=thresh, rising=rising, falling=falling);
-    if(idx > 0) { arr <- c(arr, idx); } else { break; }
+
+    if(idx > endAt || idx == 0 || idx > length(s)) { # bounds check
+      break; 
+    } else {
+      arr <- c(arr, idx);
+    }
   }
   return(arr);
 }

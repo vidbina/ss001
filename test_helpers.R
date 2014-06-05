@@ -108,11 +108,34 @@ test_that("returns zero if startAt index out of bounds", {
   expect_that(getStepIndex(c(1,1,1,1,1), startAt=5), equals(0))
   expect_that(getStepIndex(c(1,1,1,0,0), startAt=5), equals(0))
   expect_that(getStepIndex(c(1,0,1,1,1), startAt=5), equals(0))
-})
+});
 
-test_that("returns all step indexes in sample set", {
+test_that("returns all step indices in sample set", {
   expect_that(getStepIndices(c(0,1,1,1,0)), equals(c(2,5)));
   expect_that(getStepIndices(c(0,1,1,0,0,1,0)), equals(c(2,4,6,7)));
+});
+
+test_that("returns all step indices before ending sample in sample set", {
+  expect_that(getStepIndices(c(0,1,1,1,0), endAt=2), equals(c(2)));
+  expect_that(getStepIndices(c(0,1,1,1,0), endAt=3), equals(c(2)));
+  expect_that(getStepIndices(c(0,1,1,1,0), endAt=4), equals(c(2)));
+  expect_that(getStepIndices(c(0,1,1,0,0,1,0), endAt=5), equals(c(2,4)));
+});
+
+test_that("returns all step indices after starting sample in sample set", {
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=2), equals(c(5)));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=1), equals(c(2,5)));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=4), equals(c(5)));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=5), equals(c()));
+  expect_that(getStepIndices(c(0,1,1,0,0,1,0), startAt=5), equals(c(6,7)));
+});
+
+test_that("returns all step indices between markers", {
+  expect_that(getStepIndices(c(0,1,0,1,0), startAt=2,endAt=4), equals(c(3,4)));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=2,endAt=4), equals(c()));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=4,endAt=4), equals(c()));
+  expect_that(getStepIndices(c(0,1,1,1,0), startAt=4,endAt=5), equals(c(5)));
+  expect_that(getStepIndices(c(0,1,1,0,0,1,0), startAt=3,endAt=6), equals(c(4,6)));
 });
 
 context("Extractor")
