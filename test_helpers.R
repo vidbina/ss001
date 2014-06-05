@@ -110,6 +110,11 @@ test_that("returns zero if startAt index out of bounds", {
   expect_that(getStepIndex(c(1,0,1,1,1), startAt=5), equals(0))
 })
 
+test_that("returns all step indexes in sample set", {
+  expect_that(getStepIndices(c(0,1,1,1,0)), equals(c(2,5)));
+  expect_that(getStepIndices(c(0,1,1,0,0,1,0)), equals(c(2,4,6,7)));
+});
+
 context("Extractor")
 
 test_that("returns all datapoints within the step", {

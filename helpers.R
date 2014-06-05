@@ -53,6 +53,17 @@ getStepIndex <- function(s, startAt=1, thresh=1, rising=T, falling=T, N=1) {
   return(0)
 }
 
+getStepIndices <- function(s, startAt=1, thresh=1, rising=T, falling=T) {
+  arr <- c();
+  idx <- startAt;
+
+  repeat {
+    idx <- getStepIndex(s, startAt=idx, thresh=thresh, rising=rising, falling=falling);
+    if(idx > 0) { arr <- c(arr, idx); } else { break; }
+  }
+  return(arr);
+}
+
 getStepData <- function(d, clock, startAt=1) {
   if(length(d) != length(clock)) return(c)
   nextStep <- getStepIndex(clock, startAt=startAt)
