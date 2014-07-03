@@ -241,9 +241,9 @@ plotSingleSignal <- function(data, signal, title, range=1:length(data[[signal]])
   plotSignal(data[[signal]], time=data$Time, range=range, name=title);
 }
 
-plotMultipleSignals <- function(data, signals, titles, ranges=lapply(signals, function(x){seq_along(data[[x]])})) {
+plotMultipleSignals <- function(data, signals, titles, ranges=lapply(signals, function(x){seq_along(data[[x]])}), horizontal=TRUE) {
   dev.new(width=8, height=5);
-  layout(matrix(1:length(signals), 2, length(signals), byrow=TRUE), heights=rep(1,length(signals)));
+  layout(matrix(1:length(signals), ifelse(horizontal, 1, length(signals)), ifelse(horizontal, length(signals), 1), byrow=TRUE), heights=rep(1,length(signals)));
   print(colnames(data))
   print("sig")
   print(length(signals))
@@ -294,4 +294,4 @@ plotFFT <- function(data) {
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotMultipleSignals(data, c("A", "B", "Hall"), c("Signal A", "Signal B", "Hall Effect Sensor"));
+plotMultipleSignals(data, c("A", "B", "Hall"), c("Signal A", "Signal B", "Hall Effect Sensor"), horizontal=FALSE);
