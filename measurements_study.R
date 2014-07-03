@@ -1,6 +1,10 @@
 source("helpers.R")
 
-last_measurement <- "poll_2014-07-03-153851.csv";
+# On workbench: kept the magnet fixed at a given orientation for a while, then repositioned it a few times (which should explain the jumps).
+stability_check <- "poll_2014-07-03-153851.csv";
+# On rig: Kept blind perpendicular to rail, then started rotating until blind is parallel to rail
+rig_fix_rot <- "poll_2014-07-03-173816.csv";
+last_measurement <- rig_fix_rot;
 
 data <- read.csv(file=last_measurement, sep=";", header=TRUE);
 
@@ -237,6 +241,21 @@ plotSingleSignal <- function(data, signal, title, range=1:length(data[[signal]])
   plotSignal(data[[signal]], time=data$Time, range=range, name=title);
 }
 
+plotMultipleSignals <- function(data, signals, titles, ranges=lapply(signals, function(x){seq_along(data[[x]])})) {
+  dev.new(width=8, height=5);
+  layout(matrix(1:length(signals), 2, length(signals), byrow=TRUE), heights=rep(1,length(signals)));
+  print(colnames(data))
+  print("sig")
+  print(length(signals))
+  print("time")
+  print(length(data$Time))
+  #length(data$Time)
+  for(i in seq_along(signals)) {
+    cat(sprintf("\nplotting %d samples for %s as %s\n", length(ranges[[i]]), signals[[i]], titles[[i]]));
+    plotSignal(data[[ signals[[i]] ]], time=data$Time, range=ranges[[i]], name=titles[[i]]);
+  }
+}
+
 plotSingleSignalWithDeviation <- function(data, signal, title, range) {
   dev.new(width=4, height=5);
   layout(matrix(c(1,1,2,2), 2, 2, byrow=TRUE), heights=c(2,1));
@@ -275,6 +294,4 @@ plotFFT <- function(data) {
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-#length(data[["A"]])
-#length(data$Time)
-plotSingleSignal(data, "A", "Signal A");
+plotMultipleSignals(data, c("A", "B", "Hall"), c("Signal A", "Signal B", "Hall Effect Sensor"));
