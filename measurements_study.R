@@ -1,6 +1,6 @@
 source("helpers.R")
 
-last_measurement <- "poll_2014-05-23-161523.csv";
+last_measurement <- "poll_2014-07-03-153851.csv";
 
 data <- read.csv(file=last_measurement, sep=";", header=TRUE);
 
@@ -56,6 +56,23 @@ analyse2dSignal <- function(amplitude, time, clk, title, filter, range) {
   }
 
   return(res);
+}
+
+plotSignal <- function(amplitude, time, range=1:length(time), name="unnamed set") {
+  title = paste("Acquired samples from", name, sep=" ");
+  print(title);
+  print(length(range));
+  print(length(amplitude));
+  print(length(time));
+  mean <- mean(amplitude[range])
+  plot(time[range], amplitude[range], col="blue", type="l", main="signal", ann=FALSE);
+#  lines(time[range], mean, col="green", pch="22", type="l", main="mean");
+#  #axis(3, at=time[res$indices[seq(1, length(res$indices), length=5)]], labels=res$indices[seq(1, length(res$indices), length=5)]);
+#  mtext(side=1, text="time in milliseconds", line=2);
+#  mtext(side=2, text="amplitude", line=2);
+#  print(name)
+#  mtext(side=3, text=bquote(bold(.(title))), line=2);
+#  legend("bottomleft", c("set samples", "set samples mean", "filtered set"), col=c("blue", "green", "red"), lty=c(1,1,1), bg="white");
 }
 
 plotSignalAndDeviation <- function(amplitude, input, time, clk, range=1:100, name="unnamed set") {
@@ -207,6 +224,19 @@ killDevices <- function() {
 
 killDevices();
 
+plotSingleSignal <- function(data, signal, title, range=1:length(data[[signal]])) {
+  dev.new(width=8, height=5);
+  layout(matrix(c(1), 1, 1, byrow=TRUE), heights=c(1,1));
+  print(colnames(data))
+  print("sig")
+  print(signal)
+  print(length(data[[signal]]))
+  print("time")
+  print(length(data$Time))
+  #length(data$Time)
+  plotSignal(data[[signal]], time=data$Time, range=range, name=title);
+}
+
 plotSingleSignalWithDeviation <- function(data, signal, title, range) {
   dev.new(width=4, height=5);
   layout(matrix(c(1,1,2,2), 2, 2, byrow=TRUE), heights=c(2,1));
@@ -245,13 +275,6 @@ plotFFT <- function(data) {
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotSingleSignalWithDeviation(data, "OutA", "Output A", range=2:length(data$OutA));
-plotTwoSignalsWithDeviation(data, c("InA1", "InA2"), c("Input A1", "Input A2"), 2:length(data$OutA));
-
-plotSingleSignalWithDeviation(data, "OutB", "Output B", range=2:length(data$OutB));
-##plotSingleSignalWithDeviation(data, "OutB", "Output B");
-plotTwoSignalsWithDeviation(data, c("InB1", "InB2"), c("Input B1", "Input B2"), 2:length(data$OutB));
-
-#analyseOutputData(data$OutA, input=list(data$InA1, data$InA2), time=data$Time, clk=data$Step, range=2:5000);
-#dev.new(width=5, height=5);
-#analyseData(data$OutB, input=list(data$InB1, data$InB2), time=data$Time, clk=data$Step, 1000:1010);
+#length(data[["A"]])
+#length(data$Time)
+plotSingleSignal(data, "A", "Signal A");
