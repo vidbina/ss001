@@ -74,3 +74,14 @@ getStepData <- function(d, clock, startAt=1) {
   nextStep <- getStepIndex(clock, startAt=startAt)
   return(d[startAt:(ifelse((nextStep > 0), nextStep-1, length(clock)))])
 }
+
+newDevice <- function(width = 7, height = 7) {
+  platform <- sessionInfo()$platform 
+  if (grepl("linux",platform)) { 
+    x11(width=width, height=height) 
+  } else if (grepl("pc",platform)) { 
+    windows(width=width, height=height) 
+  } else if (grepl("apple", platform)) { 
+    quartz(width=width, height=height) 
+  }
+}
