@@ -6,6 +6,14 @@ stability_check <- "poll_2014-07-03-153851.csv";
 rig_fix_rot <- "poll_2014-07-03-173816.csv";
 # On rig: Blinds are shut (perpendicular to rails with ridges pointing inwards)
 fix_perpendicular <- "poll_2014-07-03-183851.csv";
+
+fix_video <- "poll_2014-07-03-192140.csv";
+fix_open <- "poll_2014-07-03-190916.csv";
+fix_closing <- "poll_2014-07-03-191113.csv";
+fix_closed <- "poll_2014-07-03-191233.csv";
+fix_opening <- "poll_2014-07-03-191351.csv";
+fix_closed <- "poll_2014-07-03-191634.csv";
+
 last_measurement <- rig_fix_rot;
 
 data <- read.csv(file=last_measurement, sep=";", header=TRUE);
@@ -319,13 +327,29 @@ plotSensorInput <- function(data, range=seq_along(data$Time)) {
   #box("figure", col="blue");
 }
 
-plotHistogram <- function(data, signal, range=seq_along(data$Time)) {
-  dev.new(width=6, height= 3);
-  plot(data$Time, data[[signal]], type="h");
+plotHistogram <- function(data, signal, title, range=seq_along(data$Time)) {
+  #plot(data$Time, data[[signal]], type="h");
+  hist(data[[signal]], xlab=signal, main=title, breaks=100);
 }
 
 plotFFT <- function(data) { 
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotSensorInput(data);
+plotSensorsAndHist <- function(file) {
+  killDevices();
+
+  data <- read.csv(file=file, sep=";", header=TRUE);
+  plotSensorInput(data);
+
+  dev.new(width=6, height= 6);
+  layout(matrix(c(1,1,2,2), 2, 2, byrow=TRUE), heights=c(1,1));
+  plotHistogram(data, "A", "Occurrence frequency for A");
+  plotHistogram(data, "B", "Occurrence frequency for B");
+
+  dev.new(width=6, height= 3);
+  plotHistogram(data, "Hall", "Occurrence frequency for hall sensor");
+}
+
+fixes <- c(rig_fix_rot, fix_perpendicular, fix_video, fix_open, fix_closing, fix_opening, fix_closed)
+plotSensorsAndHist(fixes[1]);
