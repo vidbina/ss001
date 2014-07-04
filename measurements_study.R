@@ -4,6 +4,8 @@ source("helpers.R")
 stability_check <- "poll_2014-07-03-153851.csv";
 # On rig: Kept blind perpendicular to rail, then started rotating until blind is parallel to rail
 rig_fix_rot <- "poll_2014-07-03-173816.csv";
+# On rig: Blinds are shut (perpendicular to rails with ridges pointing inwards)
+fix_perpendicular <- "poll_2014-07-03-183851.csv";
 last_measurement <- rig_fix_rot;
 
 data <- read.csv(file=last_measurement, sep=";", header=TRUE);
@@ -62,14 +64,14 @@ analyse2dSignal <- function(amplitude, time, clk, title, filter, range) {
   return(res);
 }
 
-plotSignal <- function(amplitude, time, range=1:length(time), name="unnamed set") {
-  title = paste("Acquired samples from", name, sep=" ");
+plotsignal <- function(amplitude, time, range=1:length(time), name="unnamed set") {
+  title = paste("acquired samples from", name, sep=" ");
   print(title);
   print(length(range));
   print(length(amplitude));
   print(length(time));
   mean <- mean(amplitude[range])
-  plot(time[range], amplitude[range], col="blue", type="l", main="signal", ann=FALSE);
+  plot(time[range], amplitude[range], col="blue", type="l", main="signal", ann=false);
 #  lines(time[range], mean, col="green", pch="22", type="l", main="mean");
 #  #axis(3, at=time[res$indices[seq(1, length(res$indices), length=5)]], labels=res$indices[seq(1, length(res$indices), length=5)]);
 #  mtext(side=1, text="time in milliseconds", line=2);
@@ -290,8 +292,40 @@ plotTwoSignalsWithDeviation <- function(data, signals, titles, range) {
   );
 }
 
+plotSensorInput <- function(data, range=seq_along(data$Time)) {
+  dev.new(width=6, height=5);
+  layout(matrix(c(1,1,2,2), 2, 2, byrow=TRUE), heights=c(2,1));
+  par(mar=c(4,4,2,1) + 0.1, ps=7);
+  #par(mar=c(2.5,3,3,1) + 0.1, ps=5, ylbias=1.2, tcl=-0.5, tck=-0.01);
+  #par(mar=c(3,4,3,1) + 0.1, ps=7, ylbias=1.2, tcl=0, tck=-0.025);
+  plot(data$Time[range], data$A[range], col="blue", type="l", main="A", ann=FALSE, axes=TRUE);
+  lines(data$Time[range], data$B[range], col="green", pch="22", type="l", main="B");
+  #axis(1, mgp=c(0,0,0));
+  #axis(2, mgp=c(2,0.75,0));
+  mtext(side=1, text="time in milliseconds", line=2);
+  mtext(side=2, text="amplitude", line=2);
+  mtext(side=3, text=bquote(bold(.("M"))), line=0);
+
+  #par(mar=c(3,3,1,1) + 0.1, ps=7);
+  #par(mar=c(2,2,2,2) + 0.1, ps=7, tcl=10, tck=1);
+  par(mar=c(4,4,2,1) + 0.1);
+  plot(data$Time[range], data$Hall, col="blue", type="l", main="A", ann=FALSE, axes=TRUE);
+  #box("plot", col="red");
+  #axis(1, mgp=c(0,0,0));
+  #axis(2, mgp=c(2,0.75,0));
+  mtext(side=3, text=bquote(bold(.("Hall"))), line=0);
+  mtext(side=1, text="time in milliseconds", line=2);
+  mtext(side=2, text="amplitude", line=2);
+  #box("figure", col="blue");
+}
+
+plotHistogram <- function(data, signal, range=seq_along(data$Time)) {
+  dev.new(width=6, height= 3);
+  plot(data$Time, data[[signal]], type="h");
+}
+
 plotFFT <- function(data) { 
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotMultipleSignals(data, c("A", "B", "Hall"), c("Signal A", "Signal B", "Hall Effect Sensor"), horizontal=FALSE);
+plotSensorInput(data);
