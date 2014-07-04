@@ -12,7 +12,7 @@ fix_open <- "poll_2014-07-03-190916.csv";
 fix_closing <- "poll_2014-07-03-191113.csv";
 fix_closed <- "poll_2014-07-03-191233.csv";
 fix_opening <- "poll_2014-07-03-191351.csv";
-fix_closed <- "poll_2014-07-03-191634.csv";
+fix_reopened <- "poll_2014-07-03-191634.csv";
 
 last_measurement <- rig_fix_rot;
 
@@ -306,7 +306,7 @@ plotSensorInput <- function(data, range=seq_along(data$Time)) {
   par(mar=c(4,4,2,1) + 0.1, ps=7);
   #par(mar=c(2.5,3,3,1) + 0.1, ps=5, ylbias=1.2, tcl=-0.5, tck=-0.01);
   #par(mar=c(3,4,3,1) + 0.1, ps=7, ylbias=1.2, tcl=0, tck=-0.025);
-  plot(data$Time[range], data$A[range], col="blue", type="l", main="A", ann=FALSE, axes=TRUE);
+  plot(data$Time[range], data$A[range], col="blue", type="l", main="A", ann=FALSE, axes=TRUE, ylim=range(c(data$B[range]), data$A[range]));
   lines(data$Time[range], data$B[range], col="green", pch="22", type="l", main="B");
   #axis(1, mgp=c(0,0,0));
   #axis(2, mgp=c(2,0.75,0));
@@ -317,7 +317,7 @@ plotSensorInput <- function(data, range=seq_along(data$Time)) {
   #par(mar=c(3,3,1,1) + 0.1, ps=7);
   #par(mar=c(2,2,2,2) + 0.1, ps=7, tcl=10, tck=1);
   par(mar=c(4,4,2,1) + 0.1);
-  plot(data$Time[range], data$Hall, col="blue", type="l", main="A", ann=FALSE, axes=TRUE);
+  plot(data$Time[range], data$Hall[range], col="blue", type="l", main="A", ann=FALSE, axes=TRUE);
   #box("plot", col="red");
   #axis(1, mgp=c(0,0,0));
   #axis(2, mgp=c(2,0.75,0));
@@ -329,27 +329,37 @@ plotSensorInput <- function(data, range=seq_along(data$Time)) {
 
 plotHistogram <- function(data, signal, title, range=seq_along(data$Time)) {
   #plot(data$Time, data[[signal]], type="h");
-  hist(data[[signal]], xlab=signal, main=title, breaks=100);
+  hist(data[[signal]][range], xlab=signal, main=title, breaks=100);
 }
 
 plotFFT <- function(data) { 
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotSensorsAndHist <- function(file) {
+plotSensorsAndHist <- function(file,range=FALSE) {
   killDevices();
-
   data <- read.csv(file=file, sep=";", header=TRUE);
-  plotSensorInput(data);
+  r <- ifelse(range==FALSE, seq_along(data$Time), seq_along(data$Time));
+  if(range == FALSE) {
+    q <- seq_along(data$Time);
+  } else {
+    q <- min(range[1], length(data$Time)):min(c(length(range), length(data$Time)));
+  }
+  plotSensorInput(data, q);
 
   dev.new(width=6, height= 6);
   layout(matrix(c(1,1,2,2), 2, 2, byrow=TRUE), heights=c(1,1));
-  plotHistogram(data, "A", "Occurrence frequency for A");
-  plotHistogram(data, "B", "Occurrence frequency for B");
+  plotHistogram(data, "A", "Occurrence frequency for A", range=q);
+  plotHistogram(data, "B", "Occurrence frequency for B", range=q);
 
   dev.new(width=6, height= 3);
-  plotHistogram(data, "Hall", "Occurrence frequency for hall sensor");
+  plotHistogram(data, "Hall", "Occurrence frequency for hall sensor", range=q);
+  cat(sprintf("\n\rOver %d samples signal A ranges from %d to %d (%d units), while B ranges from %d to %d (%d units)\n\r", length(data$Time), range(data$A[q])[1], range(data$A[q])[2], range(data$A[q])[2]-range(data$A[q])[1], range(data$B[q])[1], range(data$B[q])[2], range(data$B[q])[2]-range(data$B[q])[1]));
 }
 
-fixes <- c(rig_fix_rot, fix_perpendicular, fix_video, fix_open, fix_closing, fix_opening, fix_closed)
-plotSensorsAndHist(fixes[1]);
+renderCase <- function(case, range=FALSE) {
+  fixes <- c(rig_fix_rot, fix_perpendicular, fix_video, fix_open, fix_closing, fix_closed, fix_opening, fix_reopened, rig_fix_rot);
+  plotSensorsAndHist(fixes[case], range);
+}
+
+cat(sprintf("\n\rrenderCase(X, RANGE)\n\r  there are 8 cases, see notes specify case by integer id\n\r  range is optional\n\r"));
