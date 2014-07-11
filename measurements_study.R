@@ -14,9 +14,9 @@ fix_closed <- "poll_2014-07-03-191233.csv";
 fix_opening <- "poll_2014-07-03-191351.csv";
 fix_reopened <- "poll_2014-07-03-191634.csv";
 
-last_measurement <- rig_fix_rot;
+#last_measurement <- rig_fix_rot;
 
-data <- read.csv(file=last_measurement, sep=";", header=TRUE);
+#data <- read.csv(file=last_measurement, sep=";", header=TRUE);
 
 #plot(res$Time, res$OutA, col="blue", type="p");
 #plot(res$Time, res$OutB, col="red");
@@ -336,9 +336,8 @@ plotFFT <- function(data) {
   plot((1:length(data))/length(data), abs(fft(data))) 
 };
 
-plotSensorsAndHist <- function(file,range=FALSE) {
+plotSensorsAndHist <- function(data,range=FALSE) {
   killDevices();
-  data <- read.csv(file=file, sep=";", header=TRUE);
   r <- ifelse(range==FALSE, seq_along(data$Time), seq_along(data$Time));
   if(range == FALSE) {
     q <- seq_along(data$Time);
@@ -357,9 +356,36 @@ plotSensorsAndHist <- function(file,range=FALSE) {
   cat(sprintf("\n\rOver %d samples signal A ranges from %d to %d (%d units), while B ranges from %d to %d (%d units)\n\r", length(data$Time), range(data$A[q])[1], range(data$A[q])[2], range(data$A[q])[2]-range(data$A[q])[1], range(data$B[q])[1], range(data$B[q])[2], range(data$B[q])[2]-range(data$B[q])[1]));
 }
 
-renderCase <- function(case, range=FALSE) {
+renderCase <- function(case, plot=TRUE, range=FALSE) {
   fixes <- c(rig_fix_rot, fix_perpendicular, fix_video, fix_open, fix_closing, fix_closed, fix_opening, fix_reopened, rig_fix_rot);
-  plotSensorsAndHist(fixes[case], range);
+  data <- read.csv(file=fixes[case], sep=";", header=TRUE);
+  if(plot == TRUE) { plotSensorsAndHist(data, range) };
+  data;
 }
 
-cat(sprintf("\n\rrenderCase(X, RANGE)\n\r  there are 8 cases, see notes specify case by integer id\n\r  range is optional\n\r"));
+findPointsByValue <- function(data, field, value, margin=1) {
+  subset(data, value-margin <= data[[field]] & data[[field]] <= value+margin)
+}
+
+findIntersections <- function(margin=0) {
+  subset(data, abs(data$A-data$B) <= margin)
+}
+
+plotMain <- function(x, y, xlabel, ylabel, width, height, title) {
+  dev.new(width=width, height=height);
+  plot(x, y, lty=1, pch=".", xlab=xlabel, ylab=ylabel, main=title, col="gray");
+}
+
+plotContinuous <- function(x, y, col="black") {
+  lines(x, y, col=col, lty=1, pch=".");
+}
+
+plotGuides <- function(x, y, color="red", dot=8) {
+  lines(x, y, col=color, bg=color, lty=1, pch=".");
+}
+
+plotHighlights <- function(x, y, col="orange", bg="yellow", pch=24) {
+  points(x, y, pch=pch, col=col, bg=bg);
+}
+
+cat(sprintf("\n\rrenderCase(X, plot, RANGE)\n\r  there are 8 cases, see notes specify case by integer id\n\r  range is optional\n\r"));
