@@ -14,6 +14,15 @@ fix_closed <- "poll_2014-07-03-191233.csv";
 fix_opening <- "poll_2014-07-03-191351.csv";
 fix_reopened <- "poll_2014-07-03-191634.csv";
 
+rot_huib_is_playing <- "log_2014-07-11-145829.csv";
+rot_1 <- "log_2014-07-11-163333.csv"
+rot_2 <- "log_2014-07-11-165236.csv"
+rot_3 <- "log_2014-07-11-171633.csv"
+rot_4 <- "log_2014-07-11-172422.csv"
+rot_5 <- "log_2014-07-11-175800.csv"
+rot_6 <- "log_2014-07-11-180513.csv"
+rot_7 <- "log_2014-07-11-181358.csv"
+
 #last_measurement <- rig_fix_rot;
 
 #data <- read.csv(file=last_measurement, sep=";", header=TRUE);
@@ -89,7 +98,7 @@ plotsignal <- function(amplitude, time, range=1:length(time), name="unnamed set"
 #  legend("bottomleft", c("set samples", "set samples mean", "filtered set"), col=c("blue", "green", "red"), lty=c(1,1,1), bg="white");
 }
 
-plotSignalAndDeviation <- function(amplitude, input, time, clk, range=1:100, name="unnamed set") {
+plotSignalAndDeviation <- function(amplitude, input, time, clk, range=1:100, name="unnamed set", pos="bottomleft", legend=TRUE) {
   title = paste("Acquired samples from", name, sep=" ");
   print(title);
   res <- analyse2dSignal(amplitude, time, clk, title, filter, range);
@@ -98,13 +107,13 @@ plotSignalAndDeviation <- function(amplitude, input, time, clk, range=1:100, nam
   cat(sprintf("\n\rl_time=%d, l_indices=%d", length(time), length(res$indices)));
   plot(time[range], amplitude[range], col="blue", type="l", main="Sample set", ann=FALSE);
   lines(time[res$indices], res$s_mean, col="green", pch=22, type="l", main="Sample mean");
-  lines(time[res$indices], res$filtered, col="red", pch=22, type="l", main="Filtered set");
+  #lines(time[res$indices], res$filtered, col="red", pch=22, type="l", main="Filtered set");
   axis(3, at=time[res$indices[seq(1, length(res$indices), length=5)]], labels=res$indices[seq(1, length(res$indices), length=5)]);
   mtext(side=1, text="time in milliseconds", line=2);
   mtext(side=2, text="amplitude", line=2);
   print(name)
   mtext(side=3, text=bquote(bold(.(title))), line=2);
-  legend("bottomleft", c("set samples", "set samples mean", "filtered set"), col=c("blue", "green", "red"), lty=c(1,1,1), bg="white");
+  if(legend==TRUE) { legend(pos, c("set samples", "set samples mean"), col=c("blue", "green"), lty=c(1,1), bg="white"); }
 
   par(mar=c(3,4,3,1) + 0.1);
   plot(time[res$indices], res$s_sd, type="h", pch=22, main="Standard deviation of samples in step", ann=FALSE);
@@ -279,16 +288,18 @@ plotSingleSignalWithDeviation <- function(data, signal, title, range) {
   );
 }
 
-plotTwoSignalsWithDeviation <- function(data, signals, titles, range) {
+plotTwoSignalsWithDeviation <- function(data, signals, titles, range, pos="bottomleft", legend=TRUE) {
   dev.new(width=6, height=5);
-  layout(matrix(c(1,3,2,4), 2, 2, byrow=TRUE), heights=c(1.5,1));
+  layout(matrix(c(1,3,2,4), 2, 2, byrow=TRUE), heights=c(2.5,1));
   par(mar=c(4,4,4.5,1) + 0.1, ps=7);
   plotSignalAndDeviation(
     data[[signals[1]]], 
     time=data$Time, 
     clk=data$Step, 
     range=range, 
-    name=titles[[1]]
+    name=titles[[1]],
+    pos=pos,
+    legend=legend
   );
   par(mar=c(4,4,4.5,1) + 0.1, ps=7);
   plotSignalAndDeviation(
@@ -296,7 +307,9 @@ plotTwoSignalsWithDeviation <- function(data, signals, titles, range) {
     time=data$Time, 
     clk=data$Step, 
     range=range, 
-    name=titles[[2]]
+    name=titles[[2]],
+    pos=pos,
+    legend=legend
   );
 }
 
@@ -389,3 +402,46 @@ plotHighlights <- function(x, y, col="orange", bg="yellow", pch=24) {
 }
 
 cat(sprintf("\n\rrenderCase(X, plot, RANGE)\n\r  there are 8 cases, see notes specify case by integer id\n\r  range is optional\n\r"));
+
+renderRotAcquisitionsRVS316 <- function(legend=FALSE, legendpos="bottomleft") {
+  for(i in c(rot_1, rot_2, rot_3, rot_4)) {
+    dataset <- read.csv(file=i, sep=";", header=TRUE);
+    plotTwoSignalsWithDeviation(dataset, c("A", "B"), c("A", "B"), pos=legendpos, legend=legend);
+  }
+}
+
+
+renderRotAcquisitionsRVS304 <- function(legend=FALSE, legendpos="bottomleft") {
+  for(i in c(rot_5, rot_6, rot_7)) {
+    dataset <- read.csv(file=i, sep=";", header=TRUE);
+    plotTwoSignalsWithDeviation(dataset, c("A", "B"), c("A", "B"), pos=legendpos, legend=legend);
+  }
+}
+
+findAngleFor <- function(a, b, table) {
+}
+
+buildTable <- function(data, range=0:180) {
+  indices <- getStepIndices(data$Step);
+  factor <- (length(range)-1)/(length(indices)-1);
+
+  print(indices);
+  cat(sprintf("\n\rint orientation[%d][2] = {\n\r", length(indices)));
+  for(i in 1:length(indices)) {
+    a <- as.integer(mean(getStepData(data$A, clock=data$Step, startAt=indices[i])));
+    b <- as.integer(mean(getStepData(data$B, clock=data$Step, startAt=indices[i])));
+    cat(sprintf("  { %04d, %04d } ", a, b));
+    if(i != length(indices)) {
+      cat(sprintf(","));
+    } else {
+      cat(sprintf(" "));
+    }
+    cat(sprintf(" // %f degrees\n", min(range)+(i-1)*factor));
+  }
+  cat(sprintf("}; // orientation table with %d records\n\r", length(indices)));
+
+  #for(i in range) {
+  #  cat(sprintf("// %d degrees\n", i));
+  #}
+  #determine two possible angles for value
+}
